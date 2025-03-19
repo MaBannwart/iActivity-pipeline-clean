@@ -60,10 +60,15 @@ Currently the following outcomes are available
 +------------------+-----------------------------+------------------+
 | Arm Symmetry     | From counts                 |                  |
 +------------------+-----------------------------+------------------+
+| Activity Levels  | From counts                 |                  |
++------------------+-----------------------------+------------------+
+| Step counts      | From dominant wrist counts  | `step_count`_.   |
++------------------+-----------------------------+------------------+
 
 .. _calc_wtv: https://github.com/digitalinteraction/openmovement-python/blob/master/src/openmovement/process/calc_wtv.py
 .. _act_counts: https://github.com/actigraph/agcounts
 .. _gait_posture: https://github.com/StimuLOOP/activity-detection
+.. _step_count: https://github.com/OxWearables/stepcount
   
 
 References
