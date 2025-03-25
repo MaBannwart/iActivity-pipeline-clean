@@ -132,6 +132,7 @@ def assemble_data(fn_database, merged_data, wear_time, counts, gait_predictions,
         df_out['Steps'] = float("NaN")
 
     # Gait detection based on step
+    df_out.dropna(inplace=True)
     df_out['gait_nogait_new'] = df_out['Steps'].apply(lambda x: 'gait' if x > 0 else 'no-gait')
 
 

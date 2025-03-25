@@ -84,7 +84,7 @@ def assemble_sensor_data(filelist):
         # 3. Check for large timestamp differences or other timestamp errors
         samples = samples.set_index('time')
         # Remove duplicate index values (these usually appear at the start and end of the series)
-        test = samples.index.duplicated(keep=False)
+        #test = samples.index.duplicated(keep=False)
         samples = samples[~samples.index.duplicated(keep=False)]
         #TODO: Check how long the duplicate sequences are before deleting data
 

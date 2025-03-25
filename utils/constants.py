@@ -1,11 +1,11 @@
 
 """----------------------Merging------------------------------"""
-ROOT = "C:/Users/bannw/Documents/iActivity/AM_Pipeline_Server_Stepcount/TestData/Input" #"/mnt/sdb/data/iactivity_raw_data" #
-ARCHIVE = "C:/Users/bannw/Documents/iActivity/AM_Pipeline_Server_Stepcount/TestData/Archive" #"/mnt/sdb/data/iactivity_raw_data/archive" #
-OUTPUT = "C:/Users/bannw/Documents/iActivity/AM_Pipeline_Server_Stepcount/TestData/Output" #"/mnt/sdb/data/iactivity_output"
+ROOT = "C:/Users/bannw/Documents/iActivity/iActivity_Pipeline/data/Input" #"/mnt/sdb/data/iactivity_raw_data" #
+ARCHIVE = "C:/Users/bannw/Documents/iActivity/iActivity_Pipeline/data/Archive" #"/mnt/sdb/data/iactivity_raw_data/archive" #
+OUTPUT = "C:/Users/bannw/Documents/iActivity/iActivity_Pipeline/data/Output" #"/mnt/sdb/data/iactivity_output"
 #OUTPUT_FOLDER_HL7 = "C:/Users/bannw/Documents/Axivity/pipeline-test/hl7" #r"/home/lli_admin/data/hl7_export"
 #HOME = "C:/Users/bannw/Documents/Axivity/pipeline-test/data/" #r"/home/lli_admin/data/"
-ERROR = "C:/Users/bannw/Documents/iActivity/AM_Pipeline_Server_Stepcount/TestData/Error" #"/mnt/sdb/data/iactivity_raw_data/error" #
+ERROR = "C:/Users/bannw/Documents/iActivity/iActivity_Pipeline/data/Error" #"/mnt/sdb/data/iactivity_raw_data/error" #
 
 SENSOR_LOCATION = {
     'WR': 'wrist_r',
