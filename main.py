@@ -1,25 +1,25 @@
 import os
 
 import numpy as np
+import pandas as pd
 import shutil
 import re
 
 import calc_wtv
 import get_activity_predictions
 import get_gait_predictions
-import ingest_data
-import pandas as pd
 import merge_data
-import ActivityCounts
+import ingest_data
 import ENMO
+import StepCount
 from assemble_outcomes import assemble_data
+import ActivityCounts
 import utils.constants as constants
 from collections import defaultdict
 from pathlib import Path
 from itertools import groupby
 import utils.functions as utils
 import time
-import StepCount
 import pickle
 
 
@@ -69,8 +69,7 @@ def main():
     start_time = time.time()
 
     # Get a list of uploaded cwa or wav files from the upload directory
-    filelist = list(p.resolve() for p in Path(constants.ROOT).glob("*") if p.suffix in {".cwa", ".wav"})
-    # filelist = list(Path(constants.ROOT).glob('*.wav'))
+    filelist = list(p.resolve() for p in Path(constants.ROOT).glob("*") if p.suffix in {".cwa", ".wav", ".zip"})
 
     # Get list of sensor ids and wear location
     axivity_list = get_axivity_dictionary()

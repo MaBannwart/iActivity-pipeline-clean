@@ -6,6 +6,7 @@ import utils.constants as constants
 from pathlib import Path
 import re
 import _version as _ver
+from datetime import timezone, timedelta
 from zoneinfo import ZoneInfo
 
 
@@ -20,11 +21,6 @@ def main():
     # Check if archive exists
     if not archive_path.is_dir():
         archive_path.mkdir()  # create directory if it does not exist
-
-    # Get timezone we're trying to convert from
-    local_tz = ZoneInfo("Europe/Zurich")
-    # UTC timezone
-    utc_tz = ZoneInfo("UTC")
 
     # Find output files
     for csv_file_path in output_path.rglob('*.csv'):
@@ -58,13 +54,27 @@ def main():
             if df[column].isna().any():
                 print(column)
 
-        df['Timestamp'] = pd.to_datetime(df['Timestamp'], format="%Y-%m-%d %H:%M:%S")
+
+        # Convert sensor time to correct UTC time zone
+        df['Timestamp'] = pd.to_datetime(df['Timestamp'], format="%Y-%m-%d %H:%M:%S") #convert from string to datetime
+        # Use the first timestamp to determine the daylight saving time offset
+        first_timestamp = df['Timestamp'].iloc[0]
+        # Assign Europe/Zurich timezone temporarily
+        first_ts_with_tz = first_timestamp.replace(tzinfo=ZoneInfo("Europe/Zurich"))
+        # Get the offset from UTC in hours
+        offset_hours = first_ts_with_tz.utcoffset().total_seconds() / 3600
+
+        # Create a fixed offset timezone (since sensors do not use DST but continuously increase time with a fixed offset)
+        fixed_offset = timezone(timedelta(hours=offset_hours))
+
+        # Use the above fixed offset timezone to convert sensor time to UTC
         df.set_index('Timestamp', inplace=True) #set Timestamp column as index for the next operations
-        df = df.tz_localize(tz=local_tz) #add local time zone information
-        df = df.tz_convert(utc_tz) #convert local time zone to UTC (server)
-        df = df.tz_localize(tz=None)  #remove UTC encoding to custom format the timestamps in isoformat
+        df = df.tz_localize(tz=fixed_offset)  # Localize using fixed offset
+        df = df.tz_convert(timezone.utc)  # Convert to UTC (server assumed time zone)
+        df = df.tz_localize(None)  # Remove tz awareness (required since server requires string format)
         df.reset_index(inplace=True) #reset index to have a separate 'Timestamp' column again
-        df['Timestamp'] = df['Timestamp'].apply(lambda x: x.isoformat() + 'Z') #format time as UTC strings
+        df['Timestamp'] = df['Timestamp'].apply(lambda x: x.isoformat() + 'Z')  # Format time as ISO UTC strings
+
 
         json_data = {
             "fid": fid,

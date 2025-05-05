@@ -1,9 +1,9 @@
 [project]
 name = "iactivity-pipeline"
-version = "1.4.0"
+version = "2025.04.30"
 description = "A processing pipeline that finds .cwa files in a specified input folder and processes matching sensor raw files as a sensor set generating different movement outcomes"
 readme = "README.rst"
-requires-python = "3.9.13"
+requires-python = "==3.9.13"
 dependencies = [
     "agcounts>=0.2.6",
     "epoch>=0.1.5",

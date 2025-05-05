@@ -41,7 +41,7 @@ def assemble_sensor_data(filelist):
             sampling_rate = raw_data.get_sample_rate()
 
             # 1. Get meta data
-            if filepath.suffix == '.cwa':
+            if filepath.suffix == '.cwa' or filepath.suffix == ".zip":
                 file_header = raw_data.inner_data.header
                 # sampling_rate = file_header['sampleRate']
                 gyro_range = file_header['gyroRange']
