@@ -91,18 +91,27 @@ Installation
 In a command shell or terminal:
 
 Move to the parent folder of the project
+
 - cd parentProjectFolder 
 
+
 Clone the repository
+
 - git clone https://github.com/MaBannwart/iActivity-pipeline-clean.git
 
+
 Enter into the project folder
+
 - cd your-project
 
+
 Install uv package and project manager
+
 - pip install uv 
 
+
 Automatically creat the virtual environment, install dependencies and python version
+
 - uv sync
 
 
@@ -114,7 +123,9 @@ Copy or move raw data files (.cwa, .wav, .zip) to the "../data/Input" folder
 Rename the files according to the following schema: 
 FID_Date_Set_Location_SensorID_SessionID (e.g. F1234567_20260310_Set1_WL_6028005_0000000001.zip)
 
+
 In a terminal:
+
 - uv run main.py
 
 
