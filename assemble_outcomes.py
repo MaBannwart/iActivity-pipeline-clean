@@ -1,168 +1,155 @@
 import pandas as pd
+import numpy as np
 
-def assemble_data(fn_database, merged_data, wear_time, counts, gait_predictions, activity_predictions, durations_resampled, activity_levels, step_count):
-    # Assemble outcomes for database
-    print("Assembling outcomes for database")
-    df_out = pd.DataFrame()
-    if gait_predictions is not None and 'Time' in gait_predictions:
-        df_out['Timestamp'] = gait_predictions['Time']
-    elif activity_predictions is not None and 'Time' in activity_predictions:
-        df_out['Timestamp'] = activity_predictions['Time']
-    else:
-        # Get timestamps without predictions
-        # num_windows = len(merged_data.index) // 128
-        # data_length = num_windows * 128
-        df_out.insert(0, 'Time', merged_data['Timestamps'])
-        # df_out.insert(1, 'Temperature_AR', merged_data['ankle_r__temp'])
-        # df_out.insert(2, 'Temperature_AL', merged_data['ankle_l__temp'])
-        # df_out.insert(3, 'Temperature_WR', merged_data['wrist_r__temp'])
-        # df_out.insert(4, 'Temperature_WL', merged_data['wrist_l__temp'])
-        # df_out.insert(5, 'Light_AR', merged_data['ankle_r__light'])
-        # df_out.insert(6, 'Light_AL', merged_data['ankle_l__light'])
-        # df_out.insert(7, 'Light_WR', merged_data['wrist_r__light'])
-        # df_out.insert(8, 'Light_WL', merged_data['wrist_l__light'])
-        df_out.set_index('Time', inplace=True)
-        df_out = df_out.resample('1min').mean()  # .apply(lambda x: mode(x))
-        # df_resampled.reset_index(level=0, inplace=True)
-        df_out.index.name = 'Timestamp'
-        df_out.reset_index(inplace=True)
-
-
-
-    if counts is not None and 'wrist_r__AC' in counts.columns:
-        df_out['AC_wrist_r'] = counts['wrist_r__AC']
-    else:
-        df_out['AC_wrist_r'] = float("NaN")
-
-    if counts is not None and 'wrist_l__AC' in counts.columns:
-        df_out['AC_wrist_l'] = counts['wrist_l__AC']
-    else:
-        df_out['AC_wrist_l'] = float("NaN")
-
-    if counts is not None and 'ankle_r__AC' in counts.columns:
-        df_out['AC_ankle_r'] = counts['ankle_r__AC']
-    else:
-        df_out['AC_ankle_r'] = float("NaN")
-
-    if counts is not None and 'ankle_l__AC' in counts.columns:
-        df_out['AC_ankle_l'] = counts['ankle_l__AC']
-    else:
-        df_out['AC_ankle_l'] = float("NaN")
+def safe_assign(target_df, source_df, column_mapping):
+    """
+    Safely maps columns from a source DataFrame to a target DataFrame.
+    If the source or column is missing, assigns NaN.
+    
+    Parameters
+    ----------
+    target_df : pd.DataFrame
+    source_df : pd.DataFrame | None
+    column_mapping : dict
+        {target_column: source_column}
+    """
+    
+    for target_col, source_col in column_mapping.items():
+        if source_df is None or source_col not in source_df.columns:
+            target_df[target_col] = np.nan
+            continue
+            
+        series = source_df[source_col]
+                           
+        # Align by index if possible
+        if len(series) == len(target_df):
+            target_df[target_col] = series.values
+        else:
+            target_df[target_col] = series.reindex(target_df.index).values
 
 
-    # Old outcomes
-    # if df_out['AC_wrist_r'].isna().all():
-    #     df_out['act_total_wrist_r'] = float("NaN")
-    # else:
-    #     df_out['act_total_wrist_r'] = df_out['AC_wrist_r'] > 2
-    # if df_out['AC_wrist_l'].isna().all():
-    #     df_out['act_total_wrist_l'] = float("NaN")
-    # else:
-    #     df_out['act_total_wrist_l'] = df_out['AC_wrist_l'] > 2
-    #
-    # if df_out['act_total_wrist_r'].isna().all() and df_out['act_total_wrist_l'].isna().all():
-    #     df_out['act_unilateral_wrist_r'] = float("NaN")
-    #     df_out['act_unilateral_wrist_l'] = float("NaN")
-    #     df_out['act_bilateral'] = float("NaN")
-    # else:
-    #     df_out['act_unilateral_wrist_r'] = np.logical_and(df_out['act_total_wrist_r'] > 0,
-    #                                                         df_out['act_total_wrist_l'] < 1)
-    #     df_out['act_unilateral_wrist_l'] = np.logical_and(df_out['act_total_wrist_r'] < 1,
-    #                                                         df_out['act_total_wrist_l'] > 0)
-    #     df_out['act_bilateral'] = np.logical_and(df_out['act_total_wrist_r'] > 0, df_out['act_total_wrist_l'] > 0)
+def build_timestamp_df(merged_data, gait_predictions, activity_predictions):
+    """Determine timestamp source and construct base dataframe."""
 
+    if gait_predictions is not None and "Time" in gait_predictions:
+        return pd.DataFrame({"Timestamp": gait_predictions["Time"]})
 
+    if activity_predictions is not None and "Time" in activity_predictions:
+        return pd.DataFrame({"Timestamp": activity_predictions["Time"]})
 
-    # New outcomes
-    if durations_resampled is not None and 'act_total_wrist_r' in durations_resampled.columns:
-       df_out['act_total_wrist_r'] = durations_resampled['act_total_wrist_r']
-    else:
-       df_out['act_total_wrist_r'] = float("NaN")
+    # fallback: derive timestamps from raw data
+    df = pd.DataFrame({"Time": merged_data["Timestamps"]})
+    df.set_index("Time", inplace=True)
 
-    if durations_resampled is not None and 'act_total_wrist_l' in durations_resampled.columns:
-       df_out['act_total_wrist_l'] = durations_resampled['act_total_wrist_l']
-    else:
-       df_out['act_total_wrist_l'] = float("NaN")
+    df = df.resample("1min").mean()
+    df.index.name = "Timestamp"
 
+    return df.reset_index()  
+            
 
-    if durations_resampled is not None and 'act_unilateral_wrist_r' in durations_resampled.columns:
-       df_out['act_unilateral_wrist_r'] = durations_resampled['act_unilateral_wrist_r']
-    else:
-       df_out['act_unilateral_wrist_r'] = float("NaN")
+def assemble_data(outcome_path, merged_data, wear_time, counts, gait_predictions, 
+                  activity_predictions, durations_min, activity_levels, step_count):
+    """Assembles all calculated outcomes into a single unified dataframe."""
 
-    if durations_resampled is not None and 'act_unilateral_wrist_l' in durations_resampled.columns:
-       df_out['act_unilateral_wrist_l'] = durations_resampled['act_unilateral_wrist_l']
-    else:
-       df_out['act_unilateral_wrist_l'] = float("NaN")
+    df_out = build_timestamp_df(merged_data, gait_predictions, activity_predictions)
 
+    # -------------------------------------------------
+    # Counts
+    # -------------------------------------------------
 
-    if durations_resampled is not None and 'act_bilateral' in durations_resampled.columns:
-       df_out['act_bilateral'] = durations_resampled['act_bilateral']
-    else:
-       df_out['act_bilateral'] = float("NaN")
+    safe_assign(
+        df_out,
+        counts,
+        {
+            "AC_wrist_r": "wrist_r__AC",
+            "AC_wrist_l": "wrist_l__AC",
+            "AC_ankle_r": "ankle_r__AC",
+            "AC_ankle_l": "ankle_l__AC",
+        },
+    )
 
+# -------------------------------------------------
+    # Activity durations
+    # -------------------------------------------------
 
-    if activity_levels is not None and 'Sedentary' in activity_levels.columns:
-       df_out['Sedentary'] = activity_levels['Sedentary']
-    else:
-       df_out['Sedentary'] = float("NaN")
+    safe_assign(
+        df_out,
+        durations_min,
+        {
+            "act_total_wrist_r": "act_total_wrist_r",
+            "act_total_wrist_l": "act_total_wrist_l",
+            "act_unilateral_wrist_r": "act_unilateral_wrist_r",
+            "act_unilateral_wrist_l": "act_unilateral_wrist_l",
+            "act_bilateral": "act_bilateral",
+        },
+    )
 
-    if activity_levels is not None and 'Low' in activity_levels.columns:
-       df_out['Low'] = activity_levels['Low']
-    else:
-       df_out['Low'] = float("NaN")
+    # -------------------------------------------------
+    # Activity levels
+    # -------------------------------------------------
 
-    if activity_levels is not None and 'Moderate' in activity_levels.columns:
-       df_out['Moderate'] = activity_levels['Moderate']
-    else:
-       df_out['Moderate'] = float("NaN")
+    safe_assign(
+        df_out,
+        activity_levels,
+        {
+            "Sedentary": "Sedentary",
+            "Low": "Low",
+            "Moderate": "Moderate",
+            "Vigorous": "Vigorous",
+        },
+    )
 
-    if activity_levels is not None and 'Vigorous' in activity_levels.columns:
-       df_out['Vigorous'] = activity_levels['Vigorous']
-    else:
-       df_out['Vigorous'] = float("NaN")
+    df_out["activity_level"] = (
+        df_out[["Sedentary", "Low", "Moderate", "Vigorous"]]
+        .idxmax(axis=1)
+        .where(~df_out[["Sedentary", "Low", "Moderate", "Vigorous"]].isna().all(axis=1))
+    )
 
-    # Add a column with the maximum activity level per minute
-    df_out['activity_level'] = df_out[['Sedentary', 'Low', 'Moderate', 'Vigorous']].idxmax(axis=1)
+    # -------------------------------------------------
+    # Steps
+    # -------------------------------------------------
 
+    safe_assign(df_out, step_count, {"Steps": "Steps"})
 
-    if step_count is not None and 'Steps' in step_count.columns:
-         df_out['Steps'] = step_count['Steps']
-    else:
-        df_out['Steps'] = float("NaN")
+    df_out["gait_nogait_new"] = np.where(df_out["Steps"] > 0, "gait", "no-gait")
 
-    # Gait detection based on step
-    df_out.dropna(inplace=True)
-    df_out['gait_nogait_new'] = df_out['Steps'].apply(lambda x: 'gait' if x > 0 else 'no-gait')
+    # -------------------------------------------------
+    # Predictions
+    # -------------------------------------------------
 
+    safe_assign(
+        df_out,
+        gait_predictions,
+        {"gait_nogait": "filtered_prediction"},
+    )
 
+    safe_assign(
+        df_out,
+        activity_predictions,
+        {"gait_posture": "filtered_prediction"},
+    )
 
-    if gait_predictions is not None and 'filtered_prediction' in gait_predictions:
-        df_out['gait_nogait'] = gait_predictions['filtered_prediction']
-    else:
-        df_out['gait_nogait'] = float("NaN")
+    # -------------------------------------------------
+    # HR placeholder
+    # -------------------------------------------------
 
-    if activity_predictions is not None and 'filtered_prediction' in activity_predictions:
-        df_out['gait_posture'] = activity_predictions['filtered_prediction']
-    else:
-        df_out['gait_posture'] = float("NaN")
+    df_out["HR"] = np.nan
 
-
-
-    df_out['HR'] = float("NaN")
-
-
+    # -------------------------------------------------
+    # Wear time
+    # -------------------------------------------------
 
     if wear_time is not None:
-        df_out = df_out.merge(wear_time, how='inner', on='Timestamp')
+        df_out = df_out.merge(wear_time, how="inner", on="Timestamp")
     else:
-        df_out['WT_wrist_r'] = float("NaN")
-        df_out['WT_wrist_l'] = float("NaN")
-        df_out['WT_ankle_r'] = float("NaN")
-        df_out['WT_ankle_l'] = float("NaN")
+        df_out[["WT_wrist_r", "WT_wrist_l", "WT_ankle_r", "WT_ankle_l"]] = np.nan
+
+    # -------------------------------------------------
+    # Final formatting
+    # -------------------------------------------------
 
     df_out.replace({False: 0, True: 1}, inplace=True)
-    # df_out.astype(float)
-    df_out.to_csv(fn_database, index=False)
+
+    df_out.to_csv(outcome_path, index=False)
 
     return df_out

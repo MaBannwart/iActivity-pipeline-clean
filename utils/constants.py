@@ -1,12 +1,20 @@
+from pathlib import Path
+
+"""-----------------------Paths-------------------------------"""
+# Get the absolute path to the main directory (parent folder of the this script's parent folder)
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Define subfolders relative to the base directory
+INPUT_DIR = BASE_DIR / "data/Input"
+ARCHIVE_DIR = BASE_DIR / "data/Archive"
+OUTPUT_DIR = BASE_DIR / "data/Output"
+LOGS_DIR = BASE_DIR / "Logs"
+
+# Create folders if they do not exist
+for folder in [INPUT_DIR, ARCHIVE_DIR, OUTPUT_DIR]:
+    folder.mkdir(parents=True, exist_ok=True)
 
 """----------------------Merging------------------------------"""
-ROOT = "C:/Users/bannw/Documents/iActivity/iActivity_Pipeline/data/Input" #"/mnt/sdb/data/iactivity_raw_data" #
-ARCHIVE = "C:/Users/bannw/Documents/iActivity/iActivity_Pipeline/data/Archive" #"/mnt/sdb/data/iactivity_raw_data/archive" #
-OUTPUT = "C:/Users/bannw/Documents/iActivity/iActivity_Pipeline/data/Output" #"/mnt/sdb/data/iactivity_output"
-#OUTPUT_FOLDER_HL7 = "C:/Users/bannw/Documents/Axivity/pipeline-test/hl7" #r"/home/lli_admin/data/hl7_export"
-#HOME = "C:/Users/bannw/Documents/Axivity/pipeline-test/data/" #r"/home/lli_admin/data/"
-ERROR = "C:/Users/bannw/Documents/iActivity/iActivity_Pipeline/data/Error" #"/mnt/sdb/data/iactivity_raw_data/error" #
-
 SENSOR_LOCATION = {
     'WR': 'wrist_r',
     'WL': 'wrist_l',

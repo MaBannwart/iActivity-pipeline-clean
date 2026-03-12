@@ -19,11 +19,11 @@ Functionalities
 
 Input
 ^^^^^
-Cwa files from AX6 sensors worn on the wrists or ankle.
+CWA or WAV files (can also be individually zipped to safe storage space) from AX6 sensors worn on the wrists or ankles.
   
 The filename of the raw data files has to fit the following structure:
   
-"F" + FID + _ + measure_start_date + _ + "Set" + set_number + _ + sensor_location + _ + sensor_id + _ + session_id + ".cwa"
+"F" + FID + _ + measurement_start_date + _ + "Set" + set_number + _ + sensor_location + _ + sensor_id + _ + session_id + ".cwa"
   
 +--------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 | variable           | Description                                                                                                                                                             |
@@ -42,6 +42,7 @@ The filename of the raw data files has to fit the following structure:
 +--------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 .. note::
     Filenames with the same < "F" + FID + _ measure_start_date > string are grouped and their data is merged together.
+
 
 Outcomes
 ^^^^^^^^^^^^^^^
@@ -87,26 +88,37 @@ Quickstart
 Installation
 ^^^^^^^^^^^^
 
-- Pull repository from Github 
-- Install python 3.11
-- Install python packages from requirements.txt
+In a command shell or terminal:
+
+Move to the parent folder of the project
+- cd parentProjectFolder 
+
+Clone the repository
+- git clone https://github.com/MaBannwart/iActivity-pipeline-clean.git
+
+Enter into the project folder
+- cd your-project
+
+Install uv package and project manager
+- pip install uv 
+
+Automatically creat the virtual environment, install dependencies and python version
+- uv sync
 
 
 Run Pipeline
 ^^^^^^^^^^^^^
 
-Adapt the source and output folders in the utils > constants.py file to local folders:
+Copy or move raw data files (.cwa, .wav, .zip) to the "../data/Input" folder
 
-Provide raw sensor data in the ROOT folder
+Rename the files according to the following schema: 
+FID_Date_Set_Location_SensorID_SessionID (e.g. F1234567_20260310_Set1_WL_6028005_0000000001.zip)
+
+In a terminal:
+- uv run main.py
 
 
 Outcomes
 ^^^^^^^^
 
-Find calculated outcomes in the OUTPUT folder
-
-
-Send Data to Server
-^^^^^^^^^^^^^^^^^^^^
-
-Execute ingest_data.py from within the clinic network or connect to the network via VPN (requires IT approval and VPN configuration)
+Find calculated outcomes as .csv file in the OUTPUT folder

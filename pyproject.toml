@@ -1,13 +1,15 @@
 [project]
 name = "iactivity-pipeline"
-version = "2025.04.30"
-description = "A processing pipeline that finds .cwa files in a specified input folder and processes matching sensor raw files as a sensor set generating different movement outcomes"
+version = "2026.03.10"
+description = "A processing pipeline that finds .cwa files in a specified input folder and processes matching sensor raw files (same sensor set) generating different activity outcomes"
 readme = "README.rst"
 requires-python = "==3.9.13"
 dependencies = [
     "agcounts>=0.2.6",
     "epoch>=0.1.5",
+    "logging>=0.4.9.6",
     "openmovement",
+    "pathlib>=1.0.1",
     "requests>=2.32.3",
     "seaborn>=0.13.2",
     "stepcount>=3.12.0",
